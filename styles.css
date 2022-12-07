@@ -50,18 +50,130 @@ table {
 
 /* CSS RESET ABOVE */
 
+:root {
+    --color-bg-main: #f0f0f0;
+    --color-bg-second: #ffffff;
+    --color-text-main: #222831;
+    --color-text-second: #30475E;
+    --color-text-light: #516d8a;
+    --color-text-button: #ffffff;
+    --color-accent: #FF4C29;
+    --color-accent2: #950101;
+}
+
 * {
     box-sizing: border-box;
 }
 
 html {
+    background-color: var(--color-bg-main);
     height: -webkit-fill-available;
+
 }
 
 body {
-    height: 100vh;
+    min-height: 100vh;
     height: -webkit-fill-available;
     line-height: 1.6;
     font-size: 16px;
-    font-family: 'Lato', sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'Lato', sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue';
 }
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    min-height: 100%;
+    width: 1200px;
+}
+
+.navbar, .main, .footer {
+    flex-shrink: 0;
+}
+
+/* Navbar styling */
+
+.navbar {
+    position: sticky;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--color-bg-second);
+    padding: 0 16px;
+    height: 60px;
+    width: 100vw;
+    color: var(--color-text-second);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #516d8a;
+}
+
+.navbar h1 .logo_color1 {
+    color: var(--color-accent2);
+}
+
+.navbar h1 .logo_color2 {
+    color: var(--color-accent);
+}
+
+.navbar .btn_modal {
+    background-color: var(--color-accent);
+    border: none;
+    border-radius: 10px;
+    width: 150px;
+    height: 35px;
+    font-size: 1rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: var(--color-text-button);
+    cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+}
+
+.navbar .btn_modal:active {
+    margin-top: 2px;
+    height: 33px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px, rgba(0, 0, 0, 0.1) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px 0px 0px inset;
+}
+
+/* Main styling */
+
+.main {
+    width: 100%;
+    flex-grow: 1;
+}
+
+/* Footer styling */
+
+.footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30px;
+    background-color: var(--color-bg-second);
+    width: 100vw;
+    color: var(--color-text-light);
+    font-family: inherit;
+    font-weight: 600;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* FOOTER ICON ANIMATION */
+.footer .fa-github {
+    color: var(--color-text-light);
+    font-size: 1rem;
+    transition: transform 0.3s ease-in-out;
+    margin-left: 10px;
+}
+
+.footer .fa-github:hover {
+    transform: rotate(360deg) scale(1.2);
+    color: var(--color-accent);
+}
+
+@media (hover: hover) {}
