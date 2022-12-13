@@ -4,7 +4,7 @@ const pizzaFactory = (id, pizza, image, price, heat, toppings) => {
     return {
         id, pizza, image, price, heat, toppings
     }
-}
+};
 
 const modalModule = (() => {
     //Modal
@@ -18,18 +18,18 @@ const modalModule = (() => {
 
     function closeModal() {
         modal.classList.remove('show')
-        modalForm.clearInputs();
+        formModule.clearInputs();
     }
 
     createBtn.addEventListener('click', showModal);
     closeBtn.addEventListener('click', closeModal);
-
+    // export functions for other modules to use
     return {
         closeModal: closeModal
     }
 })();
 
-const modalForm = (() => {
+const formModule = (() => {
     //Form inputs and buttons
     const inpName = document.querySelector('#input_name');
     const inpPrice = document.querySelector('#input_price');
@@ -74,12 +74,13 @@ const modalForm = (() => {
         clearInputs();
         let pizzaObj = pizzaFactory(id, pizza, image, price, heat, ingredients);
         pizzaArray.push(pizzaObj);
+        storageModule.saveToStorage();
     }
 
     toppingsBtn.addEventListener('click', addToppings);
     submitBtn.addEventListener('click', () => {
         submitForm()
-        pizzaCard.displayCard(pizzaArray.slice(-1).pop());
+        pizzaModule.displayCard(pizzaArray.slice(-1).pop());
         modalModule.closeModal();
         console.log(pizzaArray);
     });
@@ -90,8 +91,8 @@ const modalForm = (() => {
     }
 })();
 
-const pizzaCard = (() => {
-
+const pizzaModule = (() => {
+    // Displays heat icons on card
     function displayHeat(heat) {
         if (heat === '3') {
             return '🌶️🌶️🌶️'
@@ -112,18 +113,18 @@ const pizzaCard = (() => {
         //Create all card elements
         const grid = document.querySelector('.grid');
         const gridItem = document.createElement('div');
-        gridItem.classList.add('grid_item');
         const pizzaName = document.createElement('h3');
-        pizzaName.classList.add('pizza_name');
         const pizzaImage = document.createElement('img');
-        pizzaImage.classList.add('pizza_image');
         const pizzaPrice = document.createElement('p');
-        pizzaPrice.classList.add('pizza_price');
         const pizzaHeat = document.createElement('p');
-        pizzaHeat.classList.add('pizza_heat');
-        let pizzaToppings = document.createElement('p');
-        pizzaToppings.classList.add('pizza_toppings');
+        const pizzaToppings = document.createElement('p');
         const removeBtn = document.createElement('button');
+        gridItem.classList.add('grid_item');
+        pizzaName.classList.add('pizza_name');
+        pizzaImage.classList.add('pizza_image');
+        pizzaPrice.classList.add('pizza_price');
+        pizzaHeat.classList.add('pizza_heat');
+        pizzaToppings.classList.add('pizza_toppings');
         removeBtn.classList.add('btn_delete_pizza');
 
         //Display values as text in DOM elements
@@ -144,35 +145,94 @@ const pizzaCard = (() => {
         gridItem.appendChild(pizzaHeat);
         gridItem.appendChild(pizzaToppings);
 
-        // Assign remove button to remove the card it is located in
+        // Assign remove button to ask for confirmation to remove pizza
         removeBtn.addEventListener('click', () => {
-            removePizza(pizza.id);
+            confirmationPopup(pizza.id);
         });
+    }
+    // Creates confirmation popup DOM
+    function confirmationPopup(index) {
+        const body = document.querySelector('body')
+        const confirmation = document.createElement('div');
+        const closeBtn = document.createElement('button');
+        const confirmText = document.createElement('p');
+        const span = document.createElement('span');
+        const confirmBtn = document.createElement('button');
+        const denyBtn = document.createElement('button');
+        confirmation.classList.add('confirmation');
+        closeBtn.classList.add('close_btn')
+        confirmText.classList.add('confirm_text');
+        confirmBtn.classList.add('confirm_btn');
+        denyBtn.classList.add('deny_btn');
+
+        body.appendChild(confirmation);
+        confirmation.appendChild(closeBtn);
+        confirmation.appendChild(confirmText);
+        confirmation.appendChild(span);
+        span.appendChild(confirmBtn);
+        span.appendChild(denyBtn);
+
+        closeBtn.textContent = '✖';
+        confirmText.textContent = 'Are you sure you want to delete this pizza?';
+        confirmBtn.textContent = 'Yes';
+        denyBtn.textContent = 'No';
+        // Confirmation button actions
+        closeBtn.addEventListener('click', () => {
+            confirmation.remove();
+        })
+        denyBtn.addEventListener('click', () => {
+            confirmation.remove();
+        })
+        confirmBtn.addEventListener('click', () => {
+            removePizza(index);
+            confirmation.remove();
+        })
     }
 
     // Removes the book from the page
     function removePizza(index) {
-        let pizza = document.querySelector(`.grid_item[data-number='${index}']`);
-        pizza.remove();
-        pizzaArray.splice(pizzaArray.length - 1, 1);
+        const grid = document.querySelector('.grid');
+        let newArray = pizzaArray.filter(pizza => pizza.id !== index);
+        pizzaArray = newArray;
+        storageModule.saveToStorage();
+        while (grid.firstChild) {
+            grid.removeChild(grid.firstChild);
+        }
+        displayPizzas(pizzaArray);
     };
-
+    // export functions for other modules to use
     return {
         displayCard: displayCard
     }
 
 })();
 
-// Loads up pizzas from storage on refresh
-// function onLoad(pizzaArray) {
-//     const pizzas = JSON.parse(sessionStorage.getItem('pizzas'))
-//     if (pizzas) {
-//         pizzaArray = pizzas.map((pizza) => {
-//             displayCard(pizza);
-//         })
-//     }
-//     else {
-//         pizzaArray = []
-//     }
+const storageModule = (() => {
+    function saveToStorage() {
+        sessionStorage.setItem('pizzas', JSON.stringify(pizzaArray));
+    };
 
-// }
+    function getFromStorage() {
+        return JSON.parse(sessionStorage.getItem('pizzas'));
+    };
+
+    return {
+        saveToStorage: saveToStorage,
+        getFromStorage: getFromStorage
+    }
+})();
+
+// Loads up pizzas from storage on refresh
+function displayPizzas(pizzaArray) {
+    let pizzas = storageModule.getFromStorage();
+    if (pizzas) {
+        pizzaArray = pizzas.map((pizza) => {
+            pizzaModule.displayCard(pizza);
+        })
+    }
+    else {
+        pizzaArray = []
+    }
+};
+
+displayPizzas(pizzaArray);

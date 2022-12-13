@@ -88,6 +88,12 @@ body {
     min-width: 100%;
 }
 
+span {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+}
+
 .navbar, .main, .footer {
     flex-shrink: 0;
 }
@@ -170,6 +176,23 @@ body {
     padding: 0 30px;
 }
 
+/* Confirmation to delete */
+
+.confirmation {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 30px;
+    padding: 0 30px;
+    height: 200px;
+    width: 400px;
+    background-color: var(--color-bg-second);
+}
+
 /* Main styling */
 
 .main {
@@ -207,12 +230,6 @@ body {
     font-size: 1.2rem;
     font-weight: 400;
     box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
-}
-
-span {
-    display: flex;
-    justify-content: space-between;
-    width: 80%;
 }
 
 .pizza_name {
