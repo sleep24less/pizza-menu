@@ -9,23 +9,40 @@ const pizzaFactory = (id, pizza, image, price, heat, toppings) => {
 const modalModule = (() => {
     //Modal
     const modal = document.querySelector('.modal');
+    const overlay = document.querySelector('.modal_overlay')
     const createBtn = document.querySelector('.btn_modal');
     const closeBtn = document.querySelector('.btn_modal_close')
-
+    // Shows modal, disables background using overlay and scrolling
     function showModal() {
         modal.classList.add('show');
+        disableBackground();
     }
-
+    // Disables modal, overlay and enables scrolling
     function closeModal() {
         modal.classList.remove('show')
         formModule.clearInputs();
+        enableBackground();
+    }
+
+    function disableBackground() {
+        overlay.classList.add('show');
+        overlay.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function enableBackground() {
+        overlay.classList.remove('show');
+        overlay.style.removeProperty('overflow');
+        document.body.style.removeProperty('overflow');
     }
 
     createBtn.addEventListener('click', showModal);
     closeBtn.addEventListener('click', closeModal);
     // export functions for other modules to use
     return {
-        closeModal: closeModal
+        closeModal: closeModal,
+        disableBackground: disableBackground,
+        enableBackground: enableBackground
     }
 })();
 // MODULE for form
@@ -86,7 +103,7 @@ const formModule = (() => {
 
         // Check if the pizza is already in array
         pizzaArray.some((pizza) => {
-            if (pizza.name === inpName.value) {
+            if (pizza.pizza === inpName.value) {
                 pizzaErr.classList.add('show');
                 return found = true;
             }
@@ -200,7 +217,7 @@ const pizzaModule = (() => {
         removeBtn.textContent = '✖';
         pizzaName.textContent = pizza.pizza;
         pizzaImage.setAttribute('src', `./assets/pizza${pizza.image}.jpg`);
-        pizzaPrice.textContent = pizza.price + ' ' + '$';
+        pizzaPrice.textContent = (pizza.price !== '') ? pizza.price + ' ' + '$' : '0 $';
         pizzaHeat.textContent = displayHeat(pizza.heat);
         pizzaToppings.textContent = pizza.toppings;
 
@@ -216,6 +233,7 @@ const pizzaModule = (() => {
         removeBtn.addEventListener('click', () => {
             if (!popupOn) {
                 popupOn = true;
+                modalModule.disableBackground();
                 confirmationPopup(pizza.id);
             }
         });
@@ -249,15 +267,18 @@ const pizzaModule = (() => {
         // Confirmation button actions
         closeBtn.addEventListener('click', () => {
             confirmation.remove();
+            modalModule.enableBackground();
             popupOn = false;
         })
         denyBtn.addEventListener('click', () => {
             confirmation.remove();
+            modalModule.enableBackground();
             popupOn = false;
         })
         confirmBtn.addEventListener('click', () => {
             removePizza(index);
             confirmation.remove();
+            modalModule.enableBackground();
             popupOn = false;
         })
     }
