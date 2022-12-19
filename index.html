@@ -30,7 +30,7 @@
             <input type="number" name="pizzaHeat" id="input_heat" max="3" min="0">
             <label for="input_toppings">Toppings:</label>
             <span>
-                <input type="text" name="pizzaToppings" id="input_toppings" required maxlength="30">
+                <input type="text" name="pizzaToppings" id="input_toppings" required maxlength="60">
                 <button type="button" class="btn_toppings">Add</button>
             </span>
             <p class="toppings_output"></p>
@@ -43,6 +43,16 @@
             <button type="button" class="btn_modal">Create pizza</button>
         </nav>
         <main class="main">
+            <select name="sort" id="sort">
+                <option value="" disabled selected>
+                    <p>⇅ &nbsp;Sort by:</p>
+                </option>
+                <option value="name">Alphabetical</option>
+                <option value="high">Price highest first</option>
+                <option value="low">Price lowest first</option>
+                <option value="hot">Heat highest first</option>
+                <option value="cold">Heat lowest first</option>
+            </select>
             <div class="grid">
             </div>
         </main>

@@ -5,7 +5,7 @@ const pizzaFactory = (id, pizza, image, price, heat, toppings) => {
         id, pizza, image, price, heat, toppings
     }
 };
-
+// MODULE for modal
 const modalModule = (() => {
     //Modal
     const modal = document.querySelector('.modal');
@@ -28,7 +28,7 @@ const modalModule = (() => {
         closeModal: closeModal
     }
 })();
-
+// MODULE for form
 const formModule = (() => {
     //Form inputs and buttons
     const inpName = document.querySelector('#input_name');
@@ -38,7 +38,7 @@ const formModule = (() => {
     const toppingsBtn = document.querySelector('.btn_toppings');
     const toppingsOutput = document.querySelector('.toppings_output');
     const submitBtn = document.querySelector('#submit');
-
+    // Array to store pizza toppings
     let toppings = [];
     // Adds toppings to an array and clears input after each add
     const addToppings = () => {
@@ -59,12 +59,15 @@ const formModule = (() => {
         toppingsOutput.textContent = '';
         toppings = [];
     }
-    //Random num from 1-5
+    //Random num from 1-5 for pizza pictures
     const randomNum = () => {
         return Math.floor(Math.random() * 5) + 1;
     }
     // Returns form input values as an object
     function submitForm() {
+        // Variable to store old array so the default item order is saved
+        let oldArray = storageModule.getFromStorage();
+        // Values for obj constructor attributes
         let id = pizzaArray.length;
         let pizza = inpName.value;
         let image = randomNum();
@@ -73,14 +76,21 @@ const formModule = (() => {
         let ingredients = toppings.join(', ') + '.';
         clearInputs();
         let pizzaObj = pizzaFactory(id, pizza, image, price, heat, ingredients);
-        pizzaArray.push(pizzaObj);
-        storageModule.saveToStorage();
+        pizzaArray.unshift(pizzaObj);
+        if (oldArray) {
+            oldArray.unshift(pizzaObj);
+            storageModule.saveToStorage(oldArray)
+        }
+        else {
+            storageModule.saveToStorage(pizzaArray)
+        }
     }
 
     toppingsBtn.addEventListener('click', addToppings);
     submitBtn.addEventListener('click', () => {
         submitForm()
-        pizzaModule.displayCard(pizzaArray.slice(-1).pop());
+        displayModule.displayArray();
+        // pizzaModule.displayCard(pizzaArray.slice(0, 1).pop());
         modalModule.closeModal();
         console.log(pizzaArray);
     });
@@ -90,7 +100,7 @@ const formModule = (() => {
         clearInputs: clearInputs
     }
 })();
-
+// MODAL for pizza cards
 const pizzaModule = (() => {
     // Displays heat icons on card
     function displayHeat(heat) {
@@ -107,11 +117,11 @@ const pizzaModule = (() => {
             return ''
         }
     }
-
     // Creates pizza card DOM
     function displayCard(pizza) {
         //Create all card elements
         const grid = document.querySelector('.grid');
+        const span = document.createElement('span');
         const gridItem = document.createElement('div');
         const pizzaName = document.createElement('h3');
         const pizzaImage = document.createElement('img');
@@ -126,7 +136,6 @@ const pizzaModule = (() => {
         pizzaHeat.classList.add('pizza_heat');
         pizzaToppings.classList.add('pizza_toppings');
         removeBtn.classList.add('btn_delete_pizza');
-
         //Display values as text in DOM elements
         gridItem.setAttribute('data-number', pizza.id);
         removeBtn.setAttribute('data-number', pizza.id);
@@ -138,13 +147,13 @@ const pizzaModule = (() => {
         pizzaToppings.textContent = pizza.toppings;
 
         grid.appendChild(gridItem);
-        gridItem.appendChild(pizzaName);
-        gridItem.appendChild(removeBtn);
         gridItem.appendChild(pizzaImage);
-        gridItem.appendChild(pizzaPrice);
-        gridItem.appendChild(pizzaHeat);
+        gridItem.appendChild(pizzaName);
+        gridItem.appendChild(span);
+        gridItem.appendChild(removeBtn);
+        span.appendChild(pizzaPrice);
+        span.appendChild(pizzaHeat);
         gridItem.appendChild(pizzaToppings);
-
         // Assign remove button to ask for confirmation to remove pizza
         removeBtn.addEventListener('click', () => {
             confirmationPopup(pizza.id);
@@ -189,16 +198,16 @@ const pizzaModule = (() => {
         })
     }
 
-    // Removes the book from the page
+    // Removes the pizza from the menu
     function removePizza(index) {
         const grid = document.querySelector('.grid');
         let newArray = pizzaArray.filter(pizza => pizza.id !== index);
         pizzaArray = newArray;
-        storageModule.saveToStorage();
+        storageModule.saveToStorage(pizzaArray);
         while (grid.firstChild) {
             grid.removeChild(grid.firstChild);
         }
-        displayPizzas(pizzaArray);
+        displayModule.displayArray();
     };
     // export functions for other modules to use
     return {
@@ -207,32 +216,102 @@ const pizzaModule = (() => {
 
 })();
 
+const modalSorting = (() => {
+    const sortList = document.querySelector('#sort');
+
+    sortList.addEventListener('change', () => {
+        pizzaArray = storageModule.getFromStorage();
+        switch (sortList.value) {
+            case 'name':
+                pizzaArray.sort((a, b) => {
+                    return a.pizza.localeCompare(b.pizza);
+                })
+                break;
+            case 'high':
+                pizzaArray.sort((a, b) => {
+                    return b.price - a.price;
+                })
+                break;
+            case 'low':
+                pizzaArray.sort((a, b) => {
+                    return a.price - b.price
+                })
+                break;
+            case 'hot':
+                pizzaArray.sort((a, b) => {
+                    return b.heat - a.heat;
+                })
+                break;
+            case 'cold':
+                pizzaArray.sort((a, b) => {
+                    return a.heat - b.heat;
+                })
+                break;
+            default:
+        }
+        displayModule.removeArray();
+        displayModule.displayArray();
+    })
+})();
+
+// MODULE for storage
 const storageModule = (() => {
-    function saveToStorage() {
-        sessionStorage.setItem('pizzas', JSON.stringify(pizzaArray));
+
+    function saveToStorage(array) {
+        sessionStorage.setItem('pizzas', JSON.stringify(array));
     };
 
     function getFromStorage() {
         return JSON.parse(sessionStorage.getItem('pizzas'));
     };
-
+    // export functions for other modules to use
     return {
         saveToStorage: saveToStorage,
         getFromStorage: getFromStorage
     }
 })();
+// Loads up pizzas from storage and displays them
+const displayModule = (() => {
+    let firstLoad = true;
+    // Displays all pizzas from storage 
+    function displayArray() {
+        removeDisplayed();
+        let pizzas = pizzaArray;
+        if (pizzas.length !== 0) {
+            pizzaArray = pizzas.map((pizza) => {
+                pizzaModule.displayCard(pizza);
+                return pizza;
+            })
+        }
+        else if (pizzas.length === 0) {
+            pizzaArray = [];
+            pizzas = storageModule.getFromStorage();
+            if (pizzas) {
+                pizzaArray = pizzas.map((pizza) => {
+                    pizzaModule.displayCard(pizza);
+                    return pizza;
+                })
+            }
+        }
+    };
 
-// Loads up pizzas from storage on refresh
-function displayPizzas(pizzaArray) {
-    let pizzas = storageModule.getFromStorage();
-    if (pizzas) {
-        pizzaArray = pizzas.map((pizza) => {
-            pizzaModule.displayCard(pizza);
+    function removeDisplayed() {
+        let displayedPizzas = document.querySelectorAll('.grid_item');
+        displayedPizzas.forEach((pizza) => {
+            pizza.remove();
         })
+    };
+    // Display from storage on first load
+    window.onload = () => {
+        // Clears array for first time load
+        if (firstLoad) {
+            displayArray();
+            firstLoad = false;
+        }
+    };
+    // export functions for other modules to use
+    return {
+        displayArray: displayArray,
+        removeArray: removeDisplayed
     }
-    else {
-        pizzaArray = []
-    }
-};
-
-displayPizzas(pizzaArray);
+})();
