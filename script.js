@@ -38,6 +38,12 @@ const formModule = (() => {
     const toppingsBtn = document.querySelector('.btn_toppings');
     const toppingsOutput = document.querySelector('.toppings_output');
     const submitBtn = document.querySelector('#submit');
+    // Invalid input error text
+    const nameErr = document.querySelector('#name_error');
+    const priceErr = document.querySelector('#price_error');
+    const heatErr = document.querySelector('#heat_error');
+    const toppingsErr = document.querySelector('#toppings_error');
+    const pizzaErr = document.querySelector('#pizza_error');
     // Array to store pizza toppings
     let toppings = [];
     // Adds toppings to an array and clears input after each add
@@ -50,6 +56,49 @@ const formModule = (() => {
         }
         inpToppings.value = '';
     }
+    // Check if the input fields are empty
+    function validateForm() {
+        let found;
+        if (inpName.value === '') {
+            nameErr.classList.add('show');
+        }
+        else {
+            nameErr.classList.remove('show');
+        }
+        if (+inpPrice.value < 0 || +inpPrice.value > 100) {
+            priceErr.classList.add('show');
+        }
+        else {
+            priceErr.classList.remove('show');
+        }
+        if (+inpHeat.value < 0 || +inpHeat.value > 3) {
+            heatErr.classList.add('show');
+        }
+        else {
+            heatErr.classList.remove('show');
+        }
+        if (toppings.length < 2) {
+            toppingsErr.classList.add('show');
+        }
+        else {
+            toppingsErr.classList.remove('show');
+        }
+
+        // Check if the pizza is already in array
+        pizzaArray.some((pizza) => {
+            if (pizza.name === inpName.value) {
+                pizzaErr.classList.add('show');
+                return found = true;
+            }
+        });
+
+        if (inpName.value === '' || toppings.length < 2 || (+inpHeat.value < 0 || +inpHeat.value > 3) || (+inpPrice.value < 0 || +inpPrice.value > 100) || found === true) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    };
     // CLears form inputs
     function clearInputs() {
         inpName.value = '';
@@ -57,6 +106,11 @@ const formModule = (() => {
         inpHeat.value = '';
         inpToppings.value = '';
         toppingsOutput.textContent = '';
+        nameErr.classList.remove('show');
+        priceErr.classList.remove('show');
+        heatErr.classList.remove('show');
+        toppingsErr.classList.remove('show');
+        pizzaErr.classList.remove('show');
         toppings = [];
     }
     //Random num from 1-5 for pizza pictures
@@ -88,11 +142,13 @@ const formModule = (() => {
 
     toppingsBtn.addEventListener('click', addToppings);
     submitBtn.addEventListener('click', () => {
-        submitForm()
-        displayModule.displayArray();
-        // pizzaModule.displayCard(pizzaArray.slice(0, 1).pop());
-        modalModule.closeModal();
-        console.log(pizzaArray);
+        if (validateForm()) {
+            submitForm()
+            displayModule.displayArray();
+            // pizzaModule.displayCard(pizzaArray.slice(0, 1).pop());
+            modalModule.closeModal();
+            console.log(pizzaArray);
+        }
     });
     // export functions for other modules to use
     return {
@@ -117,6 +173,8 @@ const pizzaModule = (() => {
             return ''
         }
     }
+
+    let popupOn = false;
     // Creates pizza card DOM
     function displayCard(pizza) {
         //Create all card elements
@@ -156,7 +214,10 @@ const pizzaModule = (() => {
         gridItem.appendChild(pizzaToppings);
         // Assign remove button to ask for confirmation to remove pizza
         removeBtn.addEventListener('click', () => {
-            confirmationPopup(pizza.id);
+            if (!popupOn) {
+                popupOn = true;
+                confirmationPopup(pizza.id);
+            }
         });
     }
     // Creates confirmation popup DOM
@@ -188,13 +249,16 @@ const pizzaModule = (() => {
         // Confirmation button actions
         closeBtn.addEventListener('click', () => {
             confirmation.remove();
+            popupOn = false;
         })
         denyBtn.addEventListener('click', () => {
             confirmation.remove();
+            popupOn = false;
         })
         confirmBtn.addEventListener('click', () => {
             removePizza(index);
             confirmation.remove();
+            popupOn = false;
         })
     }
 

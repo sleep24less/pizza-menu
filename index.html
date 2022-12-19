@@ -22,18 +22,23 @@
                 <legend>Choose your pizza</legend>
                 <button type='button' class="btn_modal_close">✖</button>
             </span>
+            <p id="name_error">You must choose a name that is between 1-30 characters.</p>
             <label for="input_name">Name:</label>
             <input type="text" name="pizzaName" id="input_name" maxlength="30" required>
-            <label for="input_name">Price:</label>
+            <p id="price_error">You must choose a price between 0-100.</p>
+            <label for="input_price">Price:</label>
             <input type="number" name="pizzaPrice" id="input_price" max="100" min='0' step=".01" required>
+            <p id="heat_error">You must choose a heat between 0-3.</p>
             <label for="input_heat">Heat:</label>
             <input type="number" name="pizzaHeat" id="input_heat" max="3" min="0">
+            <p id="toppings_error">You must add at least 2 toppings.</p>
             <label for="input_toppings">Toppings:</label>
             <span>
                 <input type="text" name="pizzaToppings" id="input_toppings" required maxlength="60">
                 <button type="button" class="btn_toppings">Add</button>
             </span>
             <p class="toppings_output"></p>
+            <p id="pizza_error">A pizza with this name already exists.</p>
             <button type="button" id="submit">Add pizza</button>
         </form>
     </div>
