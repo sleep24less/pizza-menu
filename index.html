@@ -28,11 +28,12 @@
             <input type="text" name="pizzaName" id="input_name" maxlength="30" required>
             <p id="price_error">You must choose a price between 0-100.</p>
             <label for="input_price">Price:</label>
-            <input type="number" name="pizzaPrice" id="input_price" max="100" min='0' step=".01" required>
+            <input type="number" name="pizzaPrice" id="input_price" max="100" min='0' step=".01" placeholder="0-100"
+                required>
             <p id="heat_error">You must choose a heat between 0-3.</p>
             <label for="input_heat">Heat:</label>
-            <input type="number" name="pizzaHeat" id="input_heat" max="3" min="0">
-            <p id="toppings_error">You must add at least 2 toppings.</p>
+            <input type="number" name="pizzaHeat" id="input_heat" max="3" min="0" placeholder="0-3">
+            <p id="toppings_error">You must add between 2-12 toppings.</p>
             <label for="input_toppings">Toppings:</label>
             <span>
                 <input type="text" name="pizzaToppings" id="input_toppings" required maxlength="60">
@@ -50,7 +51,7 @@
         </nav>
         <main class="main">
             <select name="sort" id="sort">
-                <option value="" disabled selected>
+                <option value="" disabled selected hidden>
                     <p>⇅ &nbsp;Sort by:</p>
                 </option>
                 <option value="name">Alphabetical</option>

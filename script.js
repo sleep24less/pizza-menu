@@ -65,13 +65,15 @@ const formModule = (() => {
     let toppings = [];
     // Adds toppings to an array and clears input after each add
     const addToppings = () => {
-        let value = inpToppings.value;
-        toppings.push(value);
-        if (toppings[0]) {
-            toppingsOutput.textContent = toppings.join(', ') + '.'
-            console.log(toppings);
+        if (toppings.length < 12) {
+            let value = inpToppings.value;
+            toppings.push(value);
+            if (toppings[0]) {
+                toppingsOutput.textContent = toppings.join(', ') + '.'
+                console.log(toppings);
+            }
+            inpToppings.value = '';
         }
-        inpToppings.value = '';
     }
     // Check if the input fields are empty
     function validateForm() {
@@ -94,7 +96,7 @@ const formModule = (() => {
         else {
             heatErr.classList.remove('show');
         }
-        if (toppings.length < 2) {
+        if (toppings.length < 2 || toppings.length > 12) {
             toppingsErr.classList.add('show');
         }
         else {
@@ -109,7 +111,7 @@ const formModule = (() => {
             }
         });
 
-        if (inpName.value === '' || toppings.length < 2 || (+inpHeat.value < 0 || +inpHeat.value > 3) || (+inpPrice.value < 0 || +inpPrice.value > 100) || found === true) {
+        if (inpName.value === '' || (toppings.length < 2 || toppings.length > 12) || (+inpHeat.value < 0 || +inpHeat.value > 3) || (+inpPrice.value < 0 || +inpPrice.value > 100) || found === true) {
             return false;
         }
         else {
@@ -157,6 +159,10 @@ const formModule = (() => {
         }
     }
 
+    inpToppings.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' || e.key === '')
+            addToppings();
+    });
     toppingsBtn.addEventListener('click', addToppings);
     submitBtn.addEventListener('click', () => {
         if (validateForm()) {
@@ -214,7 +220,7 @@ const pizzaModule = (() => {
         //Display values as text in DOM elements
         gridItem.setAttribute('data-number', pizza.id);
         removeBtn.setAttribute('data-number', pizza.id);
-        removeBtn.textContent = '✖';
+        removeBtn.textContent = 'Remove';
         pizzaName.textContent = pizza.pizza;
         pizzaImage.setAttribute('src', `./assets/pizza${pizza.image}.jpg`);
         pizzaPrice.textContent = (pizza.price !== '') ? pizza.price + ' ' + '$' : '0 $';
@@ -225,10 +231,10 @@ const pizzaModule = (() => {
         gridItem.appendChild(pizzaImage);
         gridItem.appendChild(pizzaName);
         gridItem.appendChild(span);
-        gridItem.appendChild(removeBtn);
         span.appendChild(pizzaPrice);
         span.appendChild(pizzaHeat);
         gridItem.appendChild(pizzaToppings);
+        gridItem.appendChild(removeBtn);
         // Assign remove button to ask for confirmation to remove pizza
         removeBtn.addEventListener('click', () => {
             if (!popupOn) {
