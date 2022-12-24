@@ -7,7 +7,7 @@ const pizzaFactory = (id, pizza, image, price, heat, toppings) => {
 };
 // MODULE for modal
 const modalModule = (() => {
-    //Modal
+    //Modal elements
     const modal = document.querySelector('.modal');
     const overlay = document.querySelector('.modal_overlay')
     const createBtn = document.querySelector('.btn_modal');
@@ -51,6 +51,8 @@ const formModule = (() => {
     const inpName = document.querySelector('#input_name');
     const inpPrice = document.querySelector('#input_price');
     const inpHeat = document.querySelector('#input_heat');
+    const inpImage = document.querySelector('#input_image')
+    let uploadedImage;
     const inpToppings = document.querySelector('#input_toppings');
     const toppingsBtn = document.querySelector('.btn_toppings');
     const toppingsOutput = document.querySelector('.toppings_output');
@@ -118,6 +120,19 @@ const formModule = (() => {
             return true;
         }
     };
+    //Function that checks if the image input file has been loaded
+    inpImage.addEventListener('change', function imageLoaded() {
+        // Get the selected file
+        var file = this.files[0];
+        // Create a new FileReader object
+        var reader = new FileReader();
+        // Listen for when the file has been loaded
+        reader.addEventListener('load', function () {
+            uploadedImage = reader.result;
+        });
+        // Read the file as a data URL
+        reader.readAsDataURL(file);
+    })
     // CLears form inputs
     function clearInputs() {
         inpName.value = '';
@@ -125,17 +140,19 @@ const formModule = (() => {
         inpHeat.value = '';
         inpToppings.value = '';
         toppingsOutput.textContent = '';
+        inpImage.value = '';
+        uploadedImage = '';
         nameErr.classList.remove('show');
         priceErr.classList.remove('show');
         heatErr.classList.remove('show');
         toppingsErr.classList.remove('show');
         pizzaErr.classList.remove('show');
         toppings = [];
-    }
+    };
     //Random num from 1-5 for pizza pictures
     const randomNum = () => {
         return Math.floor(Math.random() * 5) + 1;
-    }
+    };
     // Returns form input values as an object
     function submitForm() {
         // Variable to store old array so the default item order is saved
@@ -143,10 +160,18 @@ const formModule = (() => {
         // Values for obj constructor attributes
         let id = pizzaArray.length;
         let pizza = inpName.value;
-        let image = randomNum();
+        let image;
         let price = inpPrice.value;
         let heat = inpHeat.value;
         let ingredients = toppings.join(', ') + '.';
+
+        if (uploadedImage === '' || uploadedImage === undefined) {
+            image = `./assets/pizza${randomNum()}.jpg`;
+        }
+        else {
+            image = uploadedImage;
+        }
+
         clearInputs();
         let pizzaObj = pizzaFactory(id, pizza, image, price, heat, ingredients);
         pizzaArray.unshift(pizzaObj);
@@ -157,8 +182,7 @@ const formModule = (() => {
         else {
             storageModule.saveToStorage(pizzaArray)
         }
-    }
-
+    };
     inpToppings.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' || e.key === '')
             addToppings();
@@ -222,11 +246,11 @@ const pizzaModule = (() => {
         removeBtn.setAttribute('data-number', pizza.id);
         removeBtn.textContent = 'Remove';
         pizzaName.textContent = pizza.pizza;
-        pizzaImage.setAttribute('src', `./assets/pizza${pizza.image}.jpg`);
+        pizzaImage.setAttribute('src', pizza.image);
         pizzaPrice.textContent = (pizza.price !== '') ? pizza.price + ' ' + '$' : '0 $';
         pizzaHeat.textContent = displayHeat(pizza.heat);
         pizzaToppings.textContent = pizza.toppings;
-
+        //Connect all DOM elements into card
         grid.appendChild(gridItem);
         gridItem.appendChild(pizzaImage);
         gridItem.appendChild(pizzaName);
@@ -288,7 +312,6 @@ const pizzaModule = (() => {
             popupOn = false;
         })
     }
-
     // Removes the pizza from the menu
     function removePizza(index) {
         const grid = document.querySelector('.grid');
